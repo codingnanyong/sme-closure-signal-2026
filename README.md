@@ -1,43 +1,102 @@
-# repo-template
+# 소상공인 폐업위험 조기신호
 
-codingnanyong's standard starting point for new repos: Linear/GitHub-issue-gated PR flow, Claude + Codex PR review, Slack merge notifications, and the usual community-health files, all pre-wired.
+AI·데이터 문제해결은행의 워크스튜디오와 직접 확보한 적법한 데이터를 활용해, 상권·업종 단위의 소상공인 폐업위험을 조기에 포착할 수 있는 신호와 지표를 설계하는 프로젝트입니다. 결과물은 **2026 데이터+AI 혁신 챌린지 데이터 문제해결 부문 - 문제해결은행 분석도구 활용** 트랙에 제출합니다.
 
-## What's included
+> 이 저장소는 현재 문제정의와 데이터 후보 검토 단계입니다. 아래 지표와 가설은 검증 전 제안이며 분석 결과로 확정된 사실이 아닙니다.
 
-- `.github/workflows/prepare-feature-pr.yml` + `.github/scripts/ensure_linear_issue.py` — push a `feat/<slug>` branch and this finds-or-creates the Linear issue, finds-or-creates the mirrored GitHub issue, and opens a Draft PR into `develop` with both closing references already filled in. No manual issue-pairing steps.
-- `.github/workflows/pr-policy.yml` — every PR into `develop` must reference a paired Linear issue (`COD-n`) and a mirrored GitHub issue (`#n`); `main` only accepts PRs from `develop`. Validates only — the provisioning above does the creating. See [AGENTS.md](AGENTS.md#pr--issue-policy).
-- `.github/workflows/claude-review.yml` — Claude automatically reviews every PR (needs setup, see below).
-- `.github/workflows/notify-slack-on-merge.yml` — posts a summary to Slack when a PR merges into `develop`/`main`.
-- `AGENTS.md` / `CLAUDE.md` — agent role & rules (Claude reads `CLAUDE.md`, which imports `AGENTS.md`; Codex and other tools read `AGENTS.md` directly).
-- `LICENSE` (MIT default — swap for an "All Rights Reserved" style notice if this is a content-only repo), `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `.github/pull_request_template.md`.
-- `docs/kor/GIT_WORKFLOW.md` / `docs/eng/GIT_WORKFLOW.md` — human-readable branch/PR/Linear policy (same policy `AGENTS.md` and `pr-policy.yml` enforce, written out for people). Add project-specific exceptions after it rather than duplicating the shared parts.
+## 문제 정의
 
-## Setup checklist for a new repo made from this template
+소상공인 지원은 폐업 이후의 사후 지원에 머물기 쉽습니다. 이 프로젝트는 매출, 유동인구, 업종 밀집도, 상권 변화와 같은 시계열 신호를 조합해 위험이 높아지는 상권·업종을 더 일찍 발견하고, 지자체와 지원기관이 상담·금융·경영개선 지원의 우선순위를 검토할 수 있는 근거를 만드는 것을 목표로 합니다.
 
-Everything below is a **one-time, per-repo** step — things only a human can do or decide (create accounts/keys, name the project, click "Install"). Once done, day-to-day PR/issue/Slack work is fully automated; nobody touches these again unless a key rotates or the project is renamed.
+현재의 작업 가설은 다음과 같습니다.
 
-### A. What stays automated after setup (no action needed once wired up)
+> 매출 변동성이 커지고 유동인구가 감소하며 동일 업종 경쟁이 심화된 상권·업종은 비교집단보다 이후 폐업률이 높을 것이다.
 
-- Opening a `feat/<slug>` branch → Linear issue created/reused, GitHub mirror issue created/reused, Draft PR opened into `develop` — all handled by `prepare-feature-pr.yml`.
-- Every PR event → branch/title/body/issue-pair validated by `pr-policy.yml`; nothing to fill in by hand.
-- Merge into `develop` → mirrored GitHub issue auto-closed by `pr-policy.yml`, which auto-transitions the Linear issue to Done via Linear's own GitHub integration.
-- Every PR → reviewed by `claude-review.yml` (and Codex, if installed).
-- Merge into `develop`/`main` → summary posted to Slack by `notify-slack-on-merge.yml`.
+예측 기간, 분석 단위, 폐업 정의와 후보 변수는 데이터 가용성 및 시간 누수 검토를 거쳐 확정합니다. 특정 사업자의 폐업을 단정하거나 자동으로 지원 대상에서 배제하는 용도로 사용하지 않습니다.
 
-### B. What you must newly do or provide for *this* repo
+## 공모 범위
 
-1. **Rename things**: update this README, `AGENTS.md`'s "Project purpose" section, and the license year/holder if needed.
-2. **Create `develop` branch**: `git checkout -b develop && git push -u origin develop`, then set `develop` as the default branch in repo Settings if that's your convention (or keep `main` default and just target `develop` for feature PRs).
-3. **Install the Claude GitHub App**: https://github.com/apps/claude → select this repo.
-4. **(Optional) Install a Codex review app** (e.g. ChatGPT Codex Connector) via https://github.com/settings/installations if you want a second automated reviewer.
-5. **Add repo secrets** (Settings → Secrets and variables → Actions → Secrets) — these are credentials only you can issue:
-   - `CLAUDE_CODE_OAUTH_TOKEN` (run `claude setup-token` locally if you have a Claude subscription) or `ANTHROPIC_API_KEY`
-   - `SLACK_WEBHOOK_URL` (Slack app → Incoming Webhooks, pick your notifications channel)
-   - `LINEAR_API_KEY` (Linear → Settings → API → Create key)
-   - `GH_PAT` — a fine-grained PAT (Contents:read, Issues:write, Pull requests:write on this repo), **not** the default `GITHUB_TOKEN`. `prepare-feature-pr.yml` uses it to create the draft PR; PRs created with `GITHUB_TOKEN` don't retrigger `pr-policy.yml` (GitHub's anti-recursion rule), so the PR would stay unchecked.
-6. **Add repo variables** (Settings → Secrets and variables → Actions → Variables) — the Linear project this repo's issues live in, since that's different per repo:
-   - `LINEAR_PROJECT_SLUG` — from the Linear project's "Copy link" (the last URL segment)
-   - `LINEAR_PROJECT_NAME` — the project's display name, used as a fallback lookup if the slug ever changes
-7. **Branch protection** (optional but recommended): require the `validate-flow` and `review` checks to pass before merging into `develop`/`main`.
+- 참가 부문: 문제해결은행 분석도구 활용
+- 참가 형태: 개인 또는 최대 5인 팀
+- 접수 기간: 2026-09-08 ~ 2026-10-22
+- 제출물: 참가신청서, 데이터레시피, 워크스튜디오 워크플로 JSON 및 URL
+- 예선 핵심 기준: 기획성 20, 구체성 20, 실효성 20, 정확성 20, 분석도구 활용 10, 종합 완성도 10
+- 제약: 데이터레시피 제안 부문과 중복 참가 불가, 데이터 직접 확보, 개인정보 비식별화 및 저작권 확인 필수
 
-Steps 5–6 are the only inputs the automation actually needs; everything after that (A above) runs itself. For the full day-to-day procedure and manual fallback if a secret expires, see [AGENTS.md](AGENTS.md#pr--issue-policy) or [CONTRIBUTING.md](CONTRIBUTING.md).
+세부 요건, 평가표, 일정과 원문 간 주의사항은 [공모 요건 정리](docs/kor/COMPETITION_REQUIREMENTS.md)를 참고하세요.
+
+## 목표 산출물
+
+1. 재현 가능한 문제정의와 분석 가설
+2. 출처·기준일·공간 및 업종 단위·이용조건을 기록한 데이터 목록
+3. 전처리와 검증 절차를 포함한 데이터레시피
+4. 워크스튜디오에서 실행 가능한 분석 워크플로와 결과물
+5. 위험 신호 또는 스코어의 검증 결과와 알려진 한계
+6. 정책·지원 활용 시나리오와 해석 가능한 시각화
+7. 참가신청서 및 제출 체크리스트
+
+## 추진 일정
+
+| Sprint | 기간 | 목표 | Linear |
+| --- | --- | --- | --- |
+| 01 | 2026-09-16 ~ 2026-09-22 | 킥오프, 요건 확인, 데이터 카탈로그 조사 | COD-189~191 |
+| 02 | 2026-09-23 ~ 2026-09-29 | 문제정의, 레시피 초안, 워크플로 설계 | COD-192~194 |
+| 03 | 2026-09-30 ~ 2026-10-06 | 전처리, 지표·스코어 설계, 1차 분석 | COD-195~197 |
+| 04 | 2026-10-07 ~ 2026-10-13 | 검증·튜닝, 결과 해석, 시각화 | COD-198~200 |
+| 05 | 2026-10-14 ~ 2026-10-22 | 레시피·신청서 완성 및 제출 | COD-201~204 |
+| 06 | 2026-10-23 ~ 2026-11-25 | 서면평가 확인, 조건부 발표 준비, 회고 | COD-205~207 |
+
+Sprint별 완료 조건과 리스크는 [프로젝트 로드맵](docs/kor/PROJECT_ROADMAP.md)에 정리합니다.
+
+## 현재 상태
+
+- Notion 프로젝트와 6개 Sprint 구성 완료
+- Linear COD-189~207 작업 분해 완료
+- 공식 공고, 신청 양식 및 평가기준 1차 검토 완료
+- 공모 트랙 적합성, 데이터 후보와 타깃 정의 검토 진행 중
+- 분석 코드와 데이터 사전은 검증되는 순서대로 추가 예정
+
+실시간 작업 상태는 Linear를 기준으로 하며 이 README의 상태 표시는 주요 단계가 바뀔 때 갱신합니다.
+
+## 프로젝트 관리
+
+- [공식 공고](https://kdata.or.kr/datahub/portal/support/board/10/48)
+- [Notion 프로젝트](https://app.notion.com/p/3dd56ff399a8814c9f56cf77230edc94)
+- [Linear 프로젝트](https://linear.app/codingnanyong/project/문제해결은행-소상공인-폐업위험-2026-05b7b012bc58)
+- [공모 요건](docs/kor/COMPETITION_REQUIREMENTS.md)
+- [프로젝트 로드맵](docs/kor/PROJECT_ROADMAP.md)
+- [Git 워크플로](docs/kor/GIT_WORKFLOW.md)
+
+Notion은 프로젝트와 Sprint 계획, Linear는 실행 이슈와 상태, GitHub는 재현 가능한 코드·문서·산출물의 기준 저장소로 사용합니다.
+
+## 데이터 및 분석 원칙
+
+- 공모전은 데이터를 별도로 제공하지 않으므로 출처와 이용조건을 확인해 직접 확보합니다.
+- 개인정보·민감정보·인증정보와 재배포가 제한된 원천 데이터는 커밋하지 않습니다.
+- 외부 데이터마다 출처, 기준일, 공간·업종 단위, 라이선스와 알려진 한계를 기록합니다.
+- 미래 정보를 학습 시점에 사용하는 시간 누수와 지역·업종별 표본 편향을 검증합니다.
+- 생성형 AI를 사용한 산출물은 사용 여부와 범위를 제출 자료에 공개합니다.
+- 결과는 지원 우선순위 검토를 돕는 보조지표로 해석하며 개별 사업자에 대한 확정 판단으로 사용하지 않습니다.
+
+## 개발 및 문서 작업 방식
+
+1. `feat/<slug>` 브랜치를 만들어 원격에 푸시합니다.
+2. 자동화가 Linear 이슈와 GitHub 미러 이슈를 만들거나 재사용하고 `develop` 대상 Draft PR을 생성합니다.
+3. PR 정책 검사와 리뷰를 통과한 뒤 `develop`에 병합합니다.
+4. 검토가 끝난 변경만 `develop`에서 `main`으로 병합합니다.
+
+세부 정책과 수동 복구 절차는 [AGENTS.md](AGENTS.md#pr--issue-policy)와 [기여 안내](CONTRIBUTING.md)를 참고하세요.
+
+## 로컬 설정
+
+`.env.example`을 복사해 개인용 `.env`를 만들고 필요한 인증정보를 입력합니다. `.env`는 Git 추적에서 제외되며 GitHub Actions가 자동으로 읽지 않으므로 Actions 값은 저장소 설정에도 별도로 등록해야 합니다.
+
+- Secrets: `LINEAR_API_KEY`, `GH_PAT`, `CLAUDE_CODE_OAUTH_TOKEN`
+- Variables: `LINEAR_PROJECT_SLUG`(프로젝트 링크 끝의 12자리 16진수 `slugId`), `LINEAR_PROJECT_NAME`
+- Optional: Slack 알림을 사용할 때만 `SLACK_WEBHOOK_URL`
+
+실제 Secret을 문서, Issue, PR 또는 채팅에 붙여 넣지 마세요. 노출된 값은 즉시 폐기하고 재발급해야 합니다.
+
+## 라이선스
+
+코드와 저장소 문서는 [MIT License](LICENSE)를 따릅니다. 외부 데이터, 공모 자료와 분석도구에는 각 원출처의 이용조건이 별도로 적용됩니다.
