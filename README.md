@@ -93,7 +93,6 @@ Notion은 프로젝트와 Sprint 계획, Linear는 실행 이슈와 상태, GitH
 
 - Secrets: `LINEAR_API_KEY`, `GH_PAT`, `CLAUDE_CODE_OAUTH_TOKEN`
 - Variables: `LINEAR_PROJECT_SLUG`(프로젝트 링크 끝의 12자리 16진수 `slugId`), `LINEAR_PROJECT_NAME`
-- Optional: Slack 알림을 사용할 때만 `SLACK_WEBHOOK_URL`
 
 실제 Secret을 문서, Issue, PR 또는 채팅에 붙여 넣지 마세요. 노출된 값은 즉시 폐기하고 재발급해야 합니다.
 
