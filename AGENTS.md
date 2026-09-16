@@ -11,6 +11,8 @@ This repository develops an early-warning signal for small-business closure risk
 - Link implementation work to the relevant Linear issue in the `COD-189` through `COD-207` plan, or let the feature-branch automation create the appropriate mirrored issue pair.
 - Consider the project complete only when the data recipe, Work Studio analysis result, application materials, validation notes, and reproducible repository artifacts are ready for submission.
 - Do not commit credentials, personal data, restricted competition data, or source data whose license does not permit redistribution. Record provenance and usage conditions for every external dataset.
+- Resolve and document the analysis-tool track fit before model implementation; the small-business closure topic must be framed and confirmed as a social-issue use case rather than assumed eligible.
+- Disclose the use and scope of generative AI in competition deliverables, as required by the official rules.
 
 ## PR & issue policy
 
