@@ -1,11 +1,16 @@
 # Project Rules
 
-<!-- Fill this in for the actual project: what this repo is, who it's for,
-what "done" looks like. Delete this comment once customized. -->
-
 ## Project purpose
 
-TODO: one paragraph on what this repo is and its intended output.
+This repository develops an early-warning signal for small-business closure risk using open data from the AI·Data Problem Solving Bank. The work is for the analysis-tool track of the 2026 Data+AI Innovation Challenge. The intended outputs are a reproducible problem definition and analysis workflow, a data recipe, validated risk indicators or a scoring model, interpretable visualizations, and the final application package due on 2026-10-22.
+
+## Project scope and completion
+
+- Keep the analysis focused on the Problem Solving Bank analysis-tool track; do not introduce work for the mutually exclusive data-recipe proposal track.
+- Treat the Notion project page as the planning source and the Linear project `문제해결은행 소상공인 폐업위험 2026` as the execution source.
+- Link implementation work to the relevant Linear issue in the `COD-189` through `COD-207` plan, or let the feature-branch automation create the appropriate mirrored issue pair.
+- Consider the project complete only when the data recipe, Work Studio analysis result, application materials, validation notes, and reproducible repository artifacts are ready for submission.
+- Do not commit credentials, personal data, restricted competition data, or source data whose license does not permit redistribution. Record provenance and usage conditions for every external dataset.
 
 ## PR & issue policy
 
@@ -28,5 +33,9 @@ On merge into `develop`, CI auto-closes the mirrored GitHub issue; Linear's nati
 - Keep unrelated user changes intact.
 - At handoff, report the changed files, any generated assets, and remaining review items.
 
-<!-- Add project-specific sections here: coding style, test commands, domain
-vocabulary, content voice, image/asset rules, etc. -->
+## Documentation conventions
+
+- Write user-facing project documentation in Korean; use English where required by tools, APIs, or source material.
+- Distinguish measured facts from assumptions and proposed proxy indicators.
+- Record dataset source, reference date, geographic and industry granularity, license, and known limitations.
+- Keep dates in `YYYY-MM-DD` format in machine-readable files and include the timezone when time-of-day matters.

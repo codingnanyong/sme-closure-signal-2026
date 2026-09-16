@@ -1,8 +1,6 @@
 # Git Branch Strategy
 
-<!-- This is repo-template's standard policy. If the project has its own
-exceptions (binary-file commit rules, release tagging conventions, etc.),
-add them after this document. -->
+This document defines the branch, issue, and pull-request workflow for the small-business closure early-warning project.
 
 ## Branch flow
 
