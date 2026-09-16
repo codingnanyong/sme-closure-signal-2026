@@ -9,8 +9,9 @@ name: Prepare feature PR
 #     -- GitHub's anti-recursion rule blocks GITHUB_TOKEN-created PRs from
 #     triggering pr-policy.yml, which would leave the PR stuck unchecked.
 #   - repo variables LINEAR_PROJECT_SLUG and LINEAR_PROJECT_NAME (Settings ->
-#     Secrets and variables -> Actions -> Variables). Get the slug from the
-#     Linear project's "Copy link" (last URL segment); the name is the
+#     Secrets and variables -> Actions -> Variables). LINEAR_PROJECT_SLUG is
+#     Linear's GraphQL slugId (the trailing hexadecimal id in the project's
+#     copied-link URL), not the full name-and-id URL segment. The name is the
 #     fallback lookup if the slug ever changes.
 
 on:

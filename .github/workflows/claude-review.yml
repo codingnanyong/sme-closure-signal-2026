@@ -1,7 +1,7 @@
 name: Claude Code Review
 
 # Requires repo secret CLAUDE_CODE_OAUTH_TOKEN (run `claude setup-token`
-# locally if you have a Claude Pro/Max subscription) or ANTHROPIC_API_KEY.
+# locally if you have a Claude Pro/Max subscription).
 # Also install the Claude GitHub App: https://github.com/apps/claude
 
 on:
