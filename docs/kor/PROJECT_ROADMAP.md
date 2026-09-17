@@ -20,7 +20,7 @@
 
 | Issue | 작업 | 완료 증거 |
 | --- | --- | --- |
-| [COD-189](https://linear.app/codingnanyong/issue/COD-189) | 공고·부문·평가기준 정리 | 공모 요건 문서와 확인사항 |
+| [COD-189](https://linear.app/codingnanyong/issue/COD-189) | 공고·부문·평가기준 정리 | [공모 요건 문서](COMPETITION_REQUIREMENTS.md)와 [원문 자료](../references/README.md) |
 | [COD-190](https://linear.app/codingnanyong/issue/COD-190) | 포털 가입 및 팀 구성 | 대표 계정과 참가 형태 확정 |
 | [COD-191](https://linear.app/codingnanyong/issue/COD-191) | 개방데이터 카탈로그 조사 | 후보 데이터 목록과 이용조건 |
 
