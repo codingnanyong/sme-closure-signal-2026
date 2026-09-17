@@ -23,7 +23,7 @@ AI·데이터 문제해결은행의 워크스튜디오와 직접 확보한 적�
 - 예선 핵심 기준: 기획성 20, 구체성 20, 실효성 20, 정확성 20, 분석도구 활용 10, 종합 완성도 10
 - 제약: 데이터레시피 제안 부문과 중복 참가 불가, 데이터 직접 확보, 개인정보 비식별화 및 저작권 확인 필수
 
-세부 요건, 평가표, 일정과 원문 간 주의사항은 [공모 요건 정리](docs/kor/COMPETITION_REQUIREMENTS.md)를 참고하세요.
+세부 요건, 평가표, 일정과 원문 간 주의사항은 [공모 요건 정리](docs/kor/COMPETITION_REQUIREMENTS.md)를 참고하세요. 공고 원본 PDF와 파일 무결성 정보는 [공모 원문 자료](docs/references/README.md)에 보관합니다.
 
 ## 목표 산출물
 
@@ -52,7 +52,7 @@ Sprint별 완료 조건과 리스크는 [프로젝트 로드맵](docs/kor/PROJEC
 
 - Notion 프로젝트와 6개 Sprint 구성 완료
 - Linear COD-189~207 작업 분해 완료
-- 공식 공고, 신청 양식 및 평가기준 1차 검토 완료
+- 공식 공고·신청 양식 원본 보관 및 평가기준 대조 완료
 - 공모 트랙 적합성, 데이터 후보와 타깃 정의 검토 진행 중
 - 분석 코드와 데이터 사전은 검증되는 순서대로 추가 예정
 
@@ -60,7 +60,8 @@ Sprint별 완료 조건과 리스크는 [프로젝트 로드맵](docs/kor/PROJEC
 
 ## 프로젝트 관리
 
-- [공식 공고](https://kdata.or.kr/datahub/portal/support/board/10/48)
+- [공식 공고](https://www.kdata.or.kr/datahub/portal/support/board/10/48)
+- [공모 원문 자료](docs/references/README.md)
 - [Notion 프로젝트](https://app.notion.com/p/3dd56ff399a8814c9f56cf77230edc94)
 - [Linear 프로젝트](https://linear.app/codingnanyong/project/문제해결은행-소상공인-폐업위험-2026-05b7b012bc58)
 - [공모 요건](docs/kor/COMPETITION_REQUIREMENTS.md)
