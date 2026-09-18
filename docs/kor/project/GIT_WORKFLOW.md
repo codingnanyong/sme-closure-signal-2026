@@ -39,4 +39,4 @@ feat/<slug> ── push ──> Linear 이슈 + GitHub 미러 이슈
 - GitHub 브랜치/PR과 Linear 이슈는 서로 참조하여 추적성을 유지합니다.
 - 자동화가 실패하면 Actions의 `Prepare feature PR`을 같은 브랜치로 다시 실행합니다. 이슈 생성은 저장소와 브랜치 조합을 기준으로 재사용됩니다.
 
-자세한 정책과 절차는 [AGENTS.md](../../AGENTS.md#pr--issue-policy)를 참고하세요.
+자세한 정책과 절차는 [AGENTS.md](../../../AGENTS.md#pr--issue-policy)를 참고하세요.

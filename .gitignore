@@ -16,3 +16,24 @@ Thumbs.db
 
 # Dependencies
 node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Local data (keep only data/README.md)
+data/raw/
+data/interim/
+data/processed/
+
+# Generated analysis outputs (keep only outputs/README.md)
+outputs/validation/
+outputs/models/
+outputs/figures/
+
+# Local-only reference guides with unverified redistribution terms
+docs/references/레시피 작성 참고.pdf
+docs/references/문제해결은행.pdf
+docs/references/신청서 가이드.pdf
