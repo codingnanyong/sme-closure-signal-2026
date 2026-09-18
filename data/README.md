@@ -9,3 +9,5 @@
 | `processed/` | 모델과 Work Studio에 바로 넣는 데이터셋 | `model_dataset.csv` |
 
 원천 파일명, 출처, 확인일, 라이선스는 `docs/kor/research` 문서에 기록한다. 인증키와 개인정보는 이 폴더에도 저장하지 않는다.
+
+현재 로컬 배치와 파일 무결성은 [로컬 데이터 매니페스트](LOCAL_DATA_MANIFEST.md)에 기록한다. 매니페스트만 Git에 커밋하고 실제 데이터 파일은 제외한다.
