@@ -16,3 +16,17 @@ Thumbs.db
 
 # Dependencies
 node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Local data (keep only data/README.md)
+data/raw/
+data/interim/
+data/processed/
+
+# Generated analysis outputs (keep only outputs/README.md)
+outputs/validation/
+outputs/models/
+outputs/figures/

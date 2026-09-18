@@ -2,16 +2,16 @@
 
 ## Project purpose
 
-This repository develops an early-warning signal for small-business closure risk using open data from the AI·Data Problem Solving Bank. The work is for the analysis-tool track of the 2026 Data+AI Innovation Challenge. The intended outputs are a reproducible problem definition and analysis workflow, a data recipe, validated risk indicators or a scoring model, interpretable visualizations, and the final application package due on 2026-10-22.
+This repository develops an early-warning signal for small-business closure risk using open data from the AI·Data Problem Solving Bank. The work is for the data-recipe proposal track of the 2026 Data+AI Innovation Challenge. The intended outputs are a reproducible problem definition and analysis workflow, a portal-ready data recipe, validated risk indicators or a scoring model, interpretable visualizations, and the final application package due on 2026-10-22.
 
 ## Project scope and completion
 
-- Keep the analysis focused on the Problem Solving Bank analysis-tool track; do not introduce work for the mutually exclusive data-recipe proposal track.
+- Keep the work focused on the Problem Solving Bank data-recipe proposal track; do not submit the same work to the mutually exclusive analysis-tool track.
 - Treat the Notion project page as the planning source and the Linear project `문제해결은행 소상공인 폐업위험 2026` as the execution source.
 - Link implementation work to the relevant Linear issue in the `COD-189` through `COD-207` plan, or let the feature-branch automation create the appropriate mirrored issue pair.
-- Consider the project complete only when the data recipe, Work Studio analysis result, application materials, validation notes, and reproducible repository artifacts are ready for submission.
+- Consider the project complete only when the portal data recipe, supporting Work Studio analysis results, application materials, validation notes, and reproducible repository artifacts are ready for submission. A Work Studio JSON file and URL are not listed as submission items for this track, but the application form's general notes say analysis must use Work Studio; verify the portal's final requirement before submission.
 - Do not commit credentials, personal data, restricted competition data, or source data whose license does not permit redistribution. Record provenance and usage conditions for every external dataset.
-- Resolve and document the analysis-tool track fit before model implementation; the small-business closure topic must be framed and confirmed as a social-issue use case rather than assumed eligible.
+- Frame the topic under the published data-recipe categories (risk minimization and/or social-issue resolution) and document the selected category before final submission.
 - Disclose the use and scope of generative AI in competition deliverables, as required by the official rules.
 
 ## PR & issue policy
@@ -41,3 +41,10 @@ On merge into `develop`, CI auto-closes the mirrored GitHub issue; Linear's nati
 - Distinguish measured facts from assumptions and proposed proxy indicators.
 - Record dataset source, reference date, geographic and industry granularity, license, and known limitations.
 - Keep dates in `YYYY-MM-DD` format in machine-readable files and include the timezone when time-of-day matters.
+
+## Repository structure
+
+- Keep all Python code in `src/sme_closure_signal/`; use `cli.py` as the command entry point and run it with `python -m sme_closure_signal`.
+- Keep inspection helpers in the package as purpose-named modules such as `preview.py`. Do not place Python files at the repository root or create a growing collection of workflow-named scripts.
+- Keep local source, intermediate, and processed data under `data/`; keep generated validation, model, and figure artifacts under `outputs/`. These files are not committed unless an explicit, license-safe fixture is required.
+- Separate Korean documentation by purpose: project operations in `docs/kor/project/`, research evidence in `docs/kor/research/`, and portal recipe material in `docs/kor/recipe/`.
