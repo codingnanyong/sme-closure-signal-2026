@@ -8,7 +8,7 @@
 
 1. [한국데이터산업진흥원 공식 공고 및 최신 첨부파일](https://www.kdata.or.kr/datahub/portal/support/board/10/48)
 2. 저장소에 보관한 [통합공고문 PDF](../../references/2026-data-ai-innovation-challenge-notice.pdf)와 [참가신청 양식 PDF](../../references/data-problem-solving-application-form.pdf)
-3. 공식 포털의 참가 신청 화면과 [신청서 작성 가이드](../../references/신청서%20가이드.pdf), [레시피 작성 가이드](../../references/레시피%20작성%20참고.pdf)
+3. 공식 포털의 참가 신청 화면과 로컬 보관 중인 `신청서 가이드.pdf`, `레시피 작성 참고.pdf`
 4. 저장소 문서, Notion 계획, Linear 이슈
 
 공식 게시글 본문은 서면·발표평가 연도를 `2025`로 표기하지만, 2026 통합공고문 p.8의 전체 일정은 `2026-10-27` 이후로 일관됩니다. 이 저장소는 첨부된 2026 통합공고 PDF를 기준으로 일정 연도를 해석합니다. 일정은 변경될 수 있으므로 제출 전에 공식 페이지를 다시 확인합니다.

@@ -73,7 +73,8 @@ def canonicalize(frame: pd.DataFrame) -> pd.DataFrame:
     renamed = frame.rename(columns={column: ALIASES.get(column, column) for column in frame.columns})
     for column in ("quarter", "area_code", "industry_code"):
         if column in renamed.columns:
-            renamed[column] = renamed[column].astype("string").str.strip()
+            values = renamed[column].astype("string").str.strip()
+            renamed[column] = values.str.replace(r"^(\d+)\.0+$", r"\1", regex=True)
     return renamed
 
 
@@ -200,9 +201,19 @@ def validate_sources(
     require_columns("점포", stores, KEY + ["store_count", "closure_rate", "closure_count"])
     require_columns("매출", sales, KEY + ["sales_amount", "sales_count"])
 
-    common_quarters = sorted(set(stores["quarter"]) & set(sales["quarter"]))
+    common_quarters = sorted(
+        set(stores["quarter"].dropna()) & set(sales["quarter"].dropna())
+    )
     stores_common = stores[stores["quarter"].isin(common_quarters)]
     sales_common = sales[sales["quarter"].isin(common_quarters)]
+    latest_pair = common_quarters[-2:] if len(common_quarters) >= 2 else []
+    area_continuity = None
+    if latest_pair:
+        earlier, later = latest_pair
+        area_continuity = {
+            "stores": continuity(stores, earlier, later),
+            "sales": continuity(sales, earlier, later),
+        }
 
     report: dict[str, object] = {
         "store_sources": store_sources,
@@ -211,17 +222,16 @@ def validate_sources(
         "sales": dataset_summary(sales, KEY),
         "common_quarters": common_quarters,
         "store_sales_coverage": key_coverage(sales_common, stores_common, KEY),
-        "area_continuity_2024Q4_to_2025Q1": {
-            "stores": continuity(stores, "20244", "20251"),
-            "sales": continuity(sales, "20244", "20251"),
-        },
+        "area_continuity_latest_pair": area_continuity,
         "target": target_summary(stores),
     }
 
     if footfall_paths:
         footfall, footfall_sources = load_many(footfall_paths)
         require_columns("유동인구", footfall, AREA_KEY + ["footfall_count"])
-        footfall_common_quarters = sorted(set(footfall["quarter"]) & set(stores["quarter"]))
+        footfall_common_quarters = sorted(
+            set(footfall["quarter"].dropna()) & set(stores["quarter"].dropna())
+        )
         footfall_common = footfall[footfall["quarter"].isin(footfall_common_quarters)]
         store_areas = stores[stores["quarter"].isin(footfall_common_quarters)]
         sales_areas = sales[sales["quarter"].isin(footfall_common_quarters)]

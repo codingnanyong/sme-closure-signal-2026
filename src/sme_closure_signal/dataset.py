@@ -31,7 +31,7 @@ def build_model_dataset(
     require_columns("매출", sales, KEY + ["sales_amount", "sales_count"])
 
     stores = unique(stores, KEY, "점포").copy()
-    sales = unique(sales, KEY, "매출")
+    sales = unique(sales, KEY, "매출").copy()
     table = stores.merge(
         sales[KEY + ["sales_amount", "sales_count"]],
         on=KEY,
@@ -43,7 +43,7 @@ def build_model_dataset(
     if footfall_paths:
         footfall, _ = load_many(footfall_paths)
         require_columns("유동인구", footfall, AREA_KEY + ["footfall_count"])
-        footfall = unique(footfall, AREA_KEY, "유동인구")
+        footfall = unique(footfall, AREA_KEY, "유동인구").copy()
         table = table.merge(
             footfall[AREA_KEY + ["footfall_count"]],
             on=AREA_KEY,
@@ -57,7 +57,8 @@ def build_model_dataset(
     observed_next = groups["quarter"].shift(-1)
     future_closures = groups["closure_count"].shift(-1)
     expected_next = table["quarter"].map(next_quarter)
-    table["target_available"] = observed_next.eq(expected_next).fillna(False).astype("int8")
+    target_available = observed_next.eq(expected_next) & future_closures.notna()
+    table["target_available"] = target_available.fillna(False).astype("int8")
     table["closure_next_q"] = (future_closures > 0).where(
         table["target_available"].eq(1)
     ).astype("Int8")
