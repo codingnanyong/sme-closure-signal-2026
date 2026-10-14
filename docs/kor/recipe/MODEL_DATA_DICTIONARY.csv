@@ -1,0 +1,12 @@
+column,korean_name,type,role,unit_or_formula,available_at,missing_rule,limitation
+quarter,기준년분기,string,key,YYYYQ,t,불허,실제 공개일은 별도 확인
+area_code,상권코드,string,key,서울 상권,t,불허,모델 피처 제외
+industry_code,서비스업종코드,string,feature,업종 범주,t,불허,학습에 없는 업종은 인코딩 전체 0
+store_count,현재 점포 수,integer,exposure,개,t,분석은 1개 이상,개별 사업자 확률의 분모로 확정하지 않음
+closure_count,현재 폐업 점포 수,integer,source_feature,개,t,학습 중앙값,미래 폐업 수와 구분
+opening_count,현재 개업 점포 수,integer,source_feature,개,t,학습 중앙값,인과효과 아님
+log_stores,로그 점포 수,float,model_feature,log(1+store_count),t,학습 중앙값 및 표준화,규모 효과 포함
+log_closures,로그 현재 폐업 수,float,model_feature,log(1+closure_count),t,학습 중앙값 및 표준화,다음 분기 정보 사용 금지
+log_openings,로그 개업 수,float,model_feature,log(1+opening_count),t,학습 중앙값 및 표준화,다음 분기 정보 사용 금지
+target_available,다음 분기 타깃 가용 여부,integer,filter,0 또는 1,t+1,0이면 학습 평가 제외,모델 피처 제외
+closure_next_q,다음 분기 폐업 발생,integer,target,연속 t+1의 폐업 수가 1개 이상이면 1,t+1,미확보는 결측,집계 행의 발생 여부이며 점포당 폐업확률 아님

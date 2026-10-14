@@ -34,7 +34,21 @@
 | `../outputs/validation/source_quality.json` | 4,205 | `843FEDE7AFAA6559651245DCD841A45876BEBA36A2B25F5D0A14B5B6E55BE737` |
 | `../outputs/validation/target_summary.json` | 638 | `317C086AE5E597D4FA5E6072FADAA1A89F2D0FBD1CA603FE91522A1B6FC48634` |
 
+## 2026-10-14 추가 확보 자료
+
+| 경로 (`data/` 기준) | SHA-256 | 출처·사용 |
+| --- | --- | --- |
+| `raw/seoul/areas/areas-official.zip` | `38bb8fab4e45a1171af4989cd7fa1275f68e5d644aa770f5431ce7ccc38384dd` | 공식 OA-15560 영역-상권 ZIP, 공공누리 1유형. 자치구별 사후 검증에 사용 |
+| `raw/seoul/history/stores-2023.zip` | `b95b113233b1b4dddabaedcf85e12213dff966de40e924e7a97a93fb9bbe662e` | 공식 OA-15577 2023년 점포 ZIP, 공공누리 1유형 |
+| `raw/seoul/history/stores-2023.csv` | `594ed70b19a47713a006b9efbf46847c0387fa8f7b2f8536a0982c7217e82c08` | ZIP의 단일 CSV, 307,741행·4개 분기. 별도 과거 학습 확장 실험에 사용 |
+
+자치구 결합·성능·출처는 `outputs/validation/districts/`, 과거 기간 비교는 `outputs/models/history_extension/`에 보관한다. 기존 v1 모델 입력은 덮어쓰지 않았다. 공식 유동인구는 API 키가 미설정이라 아직 수집하지 않았다. 추가 출처·기간·라이선스·한계는 `docs/kor/research/DATA_SOURCE_CATALOG.csv`와 `ADDITIONAL_DATA_FEASIBILITY.md`를 따른다.
+
 ## 사용 제한
+
+### 2026-10-14 점포·매출 전용 실행 추가
+
+공식 점포·매출만 결합한 `processed/stores_sales_dataset.csv`를 별도 생성했다. 611,664행, SHA-256은 `f45aa618315f2525d60ae7a75522c1e2b8035856d57be09d9e8a276a20363a58`이다. 미리보기 유동인구가 포함된 기존 모델 입력은 보존하되 이번 모델에 사용하지 않았다. 품질·타깃 보고는 `outputs/validation/stores_sales_quality.json`과 `stores_sales_target.json`, 모델 산출물은 `outputs/models/stores_sales`, 그림은 `outputs/figures/stores_sales`에 둔다. 출처·기간·단위·이용조건은 위 점포·매출 원천 기록과 동일하며 새로운 외부 데이터는 추가하지 않았다.
 
 - 미리보기 유동인구는 8개 분기 구조 확인과 파이프라인 시험에만 사용한다.
 - COD-195의 최종 데이터 품질 보고서는 `SEOUL_OPEN_DATA_API_KEY`로 다시 수집한 공식 Open API 결과를 기준으로 갱신한다.
