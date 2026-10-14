@@ -21,8 +21,10 @@ from .quality import AREA_KEY, KEY, canonicalize, read_csv
 
 
 SERVICE = "VwsmTrdarFlpopQq"
-# Endpoint and service are the sample URL published on the official dataset API tab.
-API_BASE = "http://openapi.seoul.go.kr:8088"
+# Official examples use HTTP. HTTPS on ports 8088/443 failed our 2026-10-14
+# connection checks; keep HTTPS as default and never downgrade credentials silently.
+API_BASE = "https://openapi.seoul.go.kr:8088"
+OFFICIAL_HTTP_API = "http://openapi.seoul.go.kr:8088"
 SOURCE = "https://data.seoul.go.kr/dataList/OA-15568/S/1/datasetView.do?tab=A"
 
 
@@ -39,8 +41,9 @@ def local_api_key(env_file: Path) -> str:
     return key
 
 
-def fetch_official_page(key: str, quarter: str, start: int, end: int) -> dict[str, object]:
-    url = f"{API_BASE}/{urllib.parse.quote(key, safe='')}/json/{SERVICE}/{start}/{end}/{quarter}"
+def fetch_official_page(key: str, quarter: str, start: int, end: int, *, allow_http: bool = False) -> dict[str, object]:
+    base = OFFICIAL_HTTP_API if allow_http else API_BASE
+    url = f"{base}/{urllib.parse.quote(key, safe='')}/json/{SERVICE}/{start}/{end}/{quarter}"
     try:
         with urllib.request.urlopen(url, timeout=40) as response:
             return json.loads(response.read().decode("utf-8"))
@@ -49,7 +52,7 @@ def fetch_official_page(key: str, quarter: str, start: int, end: int) -> dict[st
         raise RuntimeError("공식 API 요청에 실패했습니다. 네트워크·인증·서비스 상태를 확인하세요.") from None
 
 
-def collect_footfall(quarters: list[str], env_file: Path, output: Path) -> dict[str, object]:
+def collect_footfall(quarters: list[str], env_file: Path, output: Path, *, allow_http: bool = False) -> dict[str, object]:
     if not quarters or len(set(quarters)) != len(quarters) or any(not re.fullmatch(r"\d{4}[1-4]", q) for q in quarters):
         raise ValueError("중복 없는 YYYYQ 분기 목록이 필요합니다.")
     key = local_api_key(env_file)
@@ -57,7 +60,8 @@ def collect_footfall(quarters: list[str], env_file: Path, output: Path) -> dict[
     for quarter in quarters:
         start, expected, rows = 1, None, []
         while expected is None or start <= expected:
-            result = fetch_official_page(key, quarter, start, start + 999)
+            result = (fetch_official_page(key, quarter, start, start + 999, allow_http=True) if allow_http
+                      else fetch_official_page(key, quarter, start, start + 999))
             service = result.get(SERVICE, {})
             code = service.get("RESULT", result.get("RESULT", {})).get("CODE")
             if code != "INFO-000":
@@ -92,6 +96,7 @@ def collect_footfall(quarters: list[str], env_file: Path, output: Path) -> dict[
                   "rows": len(table), "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
                   "geography": "Seoul commercial area", "industry_dimension": False,
                   "license": "KOGL Type 1; attribution required", "api_key_recorded": False,
+                  "transport": "http_explicit_opt_in" if allow_http else "https",
                   "limitations": ["No historical release-date verification", "Population is area-level, not industry-specific customers"]}
     output.with_suffix(output.suffix + ".provenance.json").write_text(json.dumps(provenance, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return provenance

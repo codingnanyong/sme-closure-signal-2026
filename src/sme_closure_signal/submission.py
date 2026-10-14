@@ -21,13 +21,27 @@ def digest(path: Path) -> str:
 
 
 def application_counts(text: str) -> list[int]:
-    sections = re.split(r"^## ", text, flags=re.M)[1:6]
-    if len(sections) != 5:
+    sections = re.findall(r"^## (\d+)\. [^\n]+\n(.*?)(?=^## |\Z)", text, flags=re.M | re.S)
+    if [number for number, _ in sections] != ["1", "2", "3", "4", "5"]:
         raise ValueError("신청서 서술 항목은 5개여야 합니다.")
-    counts = [len(s.split("\n", 1)[1].strip()) for s in sections]
+    counts = [len(body.strip()) for _, body in sections]
     if min(counts) < 300:
         raise ValueError(f"신청서 항목이 300자 미만입니다: {counts}")
     return counts
+
+
+def external_pdf_links(text: str, source: Path, root: Path) -> str:
+    def replace(match):
+        target = match.group(1)
+        if ":" in target or not target.split("#", 1)[0].endswith(".pdf"):
+            return match.group(0)
+        path = (source.parent / target.split("#", 1)[0]).resolve()
+        try:
+            relative = path.relative_to(root.resolve())
+        except ValueError:
+            return match.group(0)
+        return "](https://github.com/codingnanyong/sme-closure-signal-2026/blob/main/" + relative.as_posix() + ")"
+    return re.sub(r"\]\(([^)]+)\)", replace, text)
 
 
 def prepare_submission(root: Path, output: Path, workstudio: Path) -> dict[str, object]:
@@ -53,18 +67,26 @@ def prepare_submission(root: Path, output: Path, workstudio: Path) -> dict[str, 
     # Preserve repository-relative evidence links without copying local source data.
     references = list((root / "docs/kor").rglob("*.md")) + list((root / "docs/kor").rglob("*.csv"))
     references += [root / "data/LOCAL_DATA_MANIFEST.md", root / "data/README.md"]
-    references += [root / "docs/references/2026-data-ai-innovation-challenge-notice.pdf",
-                   root / "docs/references/data-problem-solving-application-form.pdf", root / "docs/references/README.md"]
+    references += [root / "docs/references/README.md"]
+    # Remove only these two previously generated copies on reruns; never copy PDFs
+    # into the review ZIP without separately verified redistribution terms.
+    for name in ["2026-data-ai-innovation-challenge-notice.pdf", "data-problem-solving-application-form.pdf"]:
+        obsolete = output / "reference_repository/docs/references" / name
+        if obsolete.resolve().is_relative_to(output.resolve()):
+            obsolete.unlink(missing_ok=True)
     for source in references:
         relative = Path("reference_repository") / source.relative_to(root)
         target = output / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
+        if source.suffix == ".md":
+            target.write_text(external_pdf_links(source.read_text(encoding="utf-8"), source, root), encoding="utf-8")
+        else:
+            shutil.copyfile(source, target)
         artifacts.append(relative.as_posix())
     for filename, source in documents.items():
         if filename.endswith(".md"):
             source_path = root / source
-            content = source_path.read_text(encoding="utf-8")
+            content = external_pdf_links(source_path.read_text(encoding="utf-8"), source_path, root)
             def rebase(match):
                 target = match.group(1)
                 if ":" in target or target.startswith("#"):

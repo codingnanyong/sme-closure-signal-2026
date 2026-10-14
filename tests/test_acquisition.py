@@ -1,4 +1,5 @@
 from pathlib import Path
+import urllib.error
 
 import pytest
 import pandas as pd
@@ -10,6 +11,19 @@ def test_sample_key_is_not_accepted_for_full_collection(monkeypatch):
     monkeypatch.setenv("SEOUL_OPEN_DATA_API_KEY", "sample")
     with pytest.raises(ValueError, match="설정"):
         acquisition.local_api_key(Path("unused"))
+
+
+def test_api_failure_does_not_expose_key_or_downgrade_https(monkeypatch):
+    urls = []
+    def fail(url, **kwargs):
+        urls.append(url)
+        raise urllib.error.URLError("synthetic-secret-in-underlying-error")
+    monkeypatch.setattr(acquisition.urllib.request, "urlopen", fail)
+    with pytest.raises(RuntimeError) as error:
+        acquisition.fetch_official_page("synthetic-secret-in-underlying-error", "20241", 1, 1000)
+    assert len(urls) == 1 and urls[0].startswith("https://")
+    assert "synthetic-secret-in-underlying-error" not in str(error.value)
+    assert error.value.__suppress_context__
 
 
 @pytest.mark.parametrize("case", ["short_page", "wrong_quarter", "duplicate", "api_error"])

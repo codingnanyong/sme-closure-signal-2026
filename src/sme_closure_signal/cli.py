@@ -73,6 +73,7 @@ def main() -> None:
     footfall.add_argument("--quarters", nargs="+", default=["20241", "20242", "20243", "20244", "20251", "20252", "20253", "20254"])
     footfall.add_argument("--env-file", type=Path, default=Path(".env"))
     footfall.add_argument("--output", type=Path, default=Path("data/raw/seoul/footfall/official-2024-2025.csv"))
+    footfall.add_argument("--allow-http", action="store_true", help="공식 HTTP 예제 경로 사용: 인증키 평문 전송을 명시적으로 허용할 때만 지정")
 
     history = commands.add_parser("collect-history", help="공식 과거 점포 파일 확보와 현재 상권코드 연결 가능성 검사")
     history.add_argument("--year", type=int, default=2023)
@@ -113,7 +114,7 @@ def main() -> None:
     elif args.command == "fetch-footfall":
         from .acquisition import collect_footfall
         try:
-            result = collect_footfall(args.quarters, args.env_file, args.output)
+            result = collect_footfall(args.quarters, args.env_file, args.output, allow_http=args.allow_http)
         except (ValueError, RuntimeError) as error:
             parser.exit(2, f"{error}\n")
         print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -50,6 +50,8 @@ Sprint별 완료 조건과 리스크는 [프로젝트 로드맵](docs/kor/projec
 
 ## 현재 상태
 
+현재 구현은 [develop 대상 PR #18](https://github.com/codingnanyong/sme-closure-signal-2026/pull/18)에서 검토합니다. 자동 미러 이슈는 COD-358 / GitHub #17이며 기존 COD-195~203에는 구현 범위와 남은 조건을 구분해 반영했습니다. Notion 프로젝트와 Sprint 03~05도 갱신했으며, Work Studio 파일 등록·실행과 포털 최종 확인·제출은 아직 남아 있습니다.
+
 COD-201~202 로컬 자료는 `python -m sme_closure_signal prepare-submission`으로 생성합니다. [자료 묶음 인계](docs/kor/project/COD-201_202_LOCAL_PACKAGE.md)에 본문·신청서·정의서·그림과 Work Studio 입력을 정리했습니다. 추가로 공식 상권영역·2023년 점포 자료를 확보해 [지역별 검증과 과거 학습 확장 가능성](docs/kor/research/ADDITIONAL_DATA_FEASIBILITY.md)을 확인했습니다. 유동인구 수집은 `fetch-footfall` 명령과 로컬 API 키가 필요합니다.
 
 COD-198~200 후속 검증에서는 매출 제외 회귀(C=10)가 검증 AP 기준 후보로 선택되었고 평가 AP는 0.4862였습니다. 상권 500회 재표집과 규모별 임계값 진단·최신 후보 그림을 [추가 검증 결과](docs/kor/research/COD-199_VALIDATED_INSIGHTS.md)에 정리했습니다. 재현 명령은 `python -m sme_closure_signal robustness`입니다.
