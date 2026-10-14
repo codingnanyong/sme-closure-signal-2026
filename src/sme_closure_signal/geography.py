@@ -30,6 +30,22 @@ def download_areas(output: Path) -> None:
     if payload[:2] != b"PK":
         raise ValueError("상권 영역 응답이 ZIP이 아닙니다. 공식 파일 목록을 재확인하세요.")
     output.write_bytes(payload)
+    retrieved = datetime.now(ZoneInfo("Asia/Seoul"))
+    provenance = {"source_page": AREA_PAGE, "retrieved_date": retrieved.date().isoformat(),
+                  "retrieved_at": retrieved.isoformat(), "timezone": "Asia/Seoul",
+                  "archive_sha256": hashlib.sha256(payload).hexdigest()}
+    output.with_suffix(output.suffix + ".provenance.json").write_text(
+        json.dumps(provenance, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def area_retrieval_metadata(archive: Path) -> dict[str, object]:
+    source = archive.with_suffix(archive.suffix + ".provenance.json")
+    if not source.exists():
+        return {"retrieved_date": None, "retrieved_at": None}
+    metadata = json.loads(source.read_text(encoding="utf-8"))
+    if metadata.get("archive_sha256") != hashlib.sha256(archive.read_bytes()).hexdigest():
+        raise ValueError("영역 파일과 수집 메타데이터의 SHA-256이 다릅니다.")
+    return {name: metadata.get(name) for name in ["retrieved_date", "retrieved_at"]}
 
 
 def read_dbf(payload: bytes, encoding: str) -> pd.DataFrame:
@@ -64,6 +80,7 @@ def read_dbf(payload: bytes, encoding: str) -> pd.DataFrame:
 
 
 def district_audit(archive: Path, predictions: Path, model_metadata: Path, output: Path) -> dict[str, object]:
+    retrieval = area_retrieval_metadata(archive)
     with zipfile.ZipFile(archive) as source:
         cpg = source.read(next(name for name in source.namelist() if name.endswith(".cpg"))).decode().strip()
         attributes = read_dbf(source.read(next(name for name in source.namelist() if name.endswith(".dbf"))), cpg)
@@ -89,7 +106,8 @@ def district_audit(archive: Path, predictions: Path, model_metadata: Path, outpu
                          **metrics(subset.closure_next_q, subset.policy_score.to_numpy(), metadata["global_threshold"])})
     pd.DataFrame(rows).to_csv(output / "district_performance.csv", index=False, encoding="utf-8-sig")
     report = {"dataset_id": "OA-15560", "source_page": AREA_PAGE, "license": "KOGL Type 1, attribution required",
-              "retrieved_date": datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat(), "timezone": "Asia/Seoul", "file_modified_date_shown": "2023-10-23",
+              **retrieval, "audit_date": datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat(),
+              "timezone": "Asia/Seoul", "file_modified_date_shown": "2023-10-23",
               "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(), "mapping_rows": len(mapping),
               "mapping_districts": int(mapping.district_code.nunique()), "prediction_rows": len(scores),
               "matched_prediction_rows": int(matched.sum()), "match_rate": float(matched.mean()),

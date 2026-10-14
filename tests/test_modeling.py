@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from pathlib import Path
 
-from sme_closure_signal.modeling import features, metrics, run_benchmark
+from sme_closure_signal.modeling import features, metrics, run_benchmark, benchmark_splits
 
 
 def source(quarters):
@@ -30,6 +30,14 @@ def test_sales_changes_do_not_bridge_missing_quarters():
 def test_duplicate_keys_are_rejected():
     with pytest.raises(ValueError, match="키"):
         features(source(["20241", "20241"]))
+
+
+def test_benchmark_does_not_silently_train_on_added_history():
+    frame = pd.DataFrame({"quarter": ["20234", "20241", "20244", "20251", "20252", "20253", "20254"]})
+    train, valid, test = benchmark_splits(frame)
+    assert train.quarter.tolist() == ["20241", "20244"]
+    assert valid.quarter.tolist() == ["20251"]
+    assert test.quarter.tolist() == ["20252", "20253"]
 
 
 def test_metrics_use_frozen_threshold_and_handle_ties():

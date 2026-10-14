@@ -1,8 +1,11 @@
 import struct
+import hashlib
+import json
+from pathlib import Path
 
 import pytest
 
-from sme_closure_signal.geography import read_dbf
+from sme_closure_signal.geography import read_dbf, area_retrieval_metadata
 
 
 def test_dbf_character_codes_preserve_leading_zeros_and_decode_korean():
@@ -21,3 +24,17 @@ def test_dbf_character_codes_preserve_leading_zeros_and_decode_korean():
     assert frame.iloc[0].to_dict() == {"AREA": "001234", "NAME": "종로구", "SIZE": 123.0}
     with pytest.raises(ValueError, match="길이"):
         read_dbf(bytes(payload[:-1]), "utf-8")
+
+
+def test_retrieval_date_comes_from_source_record_and_requires_matching_hash(monkeypatch):
+    record = {"retrieved_date": "2026-09-18", "retrieved_at": "2026-09-18T09:00:00+09:00",
+              "archive_sha256": hashlib.sha256(b"archive").hexdigest()}
+    monkeypatch.setattr(Path, "exists", lambda self: True)
+    monkeypatch.setattr(Path, "read_text", lambda *args, **kwargs: json.dumps(record))
+    monkeypatch.setattr(Path, "read_bytes", lambda self: b"archive")
+    assert area_retrieval_metadata(Path("area.zip"))["retrieved_date"] == "2026-09-18"
+    record["archive_sha256"] = "different"
+    with pytest.raises(ValueError, match="SHA-256"):
+        area_retrieval_metadata(Path("area.zip"))
+    monkeypatch.setattr(Path, "exists", lambda self: False)
+    assert area_retrieval_metadata(Path("area.zip"))["retrieved_date"] is None

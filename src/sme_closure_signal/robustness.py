@@ -72,6 +72,12 @@ def select_trial(trials: list[dict[str, object]]) -> dict[str, object]:
     return max(trials, key=lambda row: float(row["validation_ap"]))
 
 
+def plot_ap_intervals(ax, comparison: pd.DataFrame) -> None:
+    # Percentile intervals need not contain the original-sample estimate.
+    ax.hlines(comparison["comparison"], comparison["lower95"], comparison["upper95"])
+    ax.plot(comparison["estimate"], comparison["comparison"], "o")
+
+
 def run_robustness(dataset: Path, output: Path, figure_dir: Path, repeats: int = 500, seed: int = 198) -> dict[str, object]:
     output.mkdir(parents=True, exist_ok=True)
     figure_dir.mkdir(parents=True, exist_ok=True)
@@ -181,7 +187,7 @@ def run_robustness(dataset: Path, output: Path, figure_dir: Path, repeats: int =
 
     comparison = intervals.loc[~intervals["comparison"].str.contains(" - ")]
     fig, ax = plt.subplots(figsize=(9, 5))
-    ax.errorbar(comparison["estimate"], comparison["comparison"], xerr=[comparison["estimate"] - comparison["lower95"], comparison["upper95"] - comparison["estimate"]], fmt="o", capsize=4)
+    plot_ap_intervals(ax, comparison)
     ax.set(xlabel="Average precision (95% paired area bootstrap interval)", title="Sales ablation: exploratory 2025Q2-Q3 evaluation")
     save(fig, "sales_ablation_intervals")
     fig, ax = plt.subplots(figsize=(8, 5))

@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from sklearn.metrics import average_precision_score
 
-from sme_closure_signal.robustness import WeightedAveragePrecision, paired_area_bootstrap, select_trial
+from sme_closure_signal.robustness import WeightedAveragePrecision, paired_area_bootstrap, select_trial, plot_ap_intervals
 
 
 @pytest.mark.parametrize("seed", [0, 198, 2026])
@@ -38,3 +38,15 @@ def test_trial_selection_does_not_read_test_scores():
     trials = [{"C": 0.1, "validation_ap": 0.4, "test_ap": 0.99},
               {"C": 1.0, "validation_ap": 0.5, "test_ap": 0.1}]
     assert select_trial(trials)["C"] == 1.0
+
+
+def test_plot_supports_percentile_interval_outside_point_estimate():
+    import matplotlib
+    matplotlib.use("Agg")
+    from matplotlib.figure import Figure
+    figure = Figure()
+    ax = figure.subplots()
+    plot_ap_intervals(ax, pd.DataFrame({"comparison": ["above", "below"], "estimate": [0.2, 0.8],
+                                       "lower95": [0.3, 0.5], "upper95": [0.4, 0.6]}))
+    assert len(ax.collections) == 1
+    assert ax.lines[0].get_xdata().tolist() == [0.2, 0.8]

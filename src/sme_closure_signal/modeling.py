@@ -24,6 +24,12 @@ from .quality import KEY
 NUMERIC = ["log_stores", "log_closures", "log_openings", "log_sales", "sales_change", "sales_volatility"]
 
 
+def benchmark_splits(labeled: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    return (labeled.loc[labeled["quarter"].between("20241", "20244")],
+            labeled.loc[labeled["quarter"].eq("20251")],
+            labeled.loc[labeled["quarter"].isin(["20252", "20253"])].copy())
+
+
 def make_logistic(numeric: list[str], regularization: float = 1.0) -> Pipeline:
     """Fit preprocessing only when the returned pipeline is fitted on training rows."""
     transform = ColumnTransformer([
@@ -98,9 +104,7 @@ def run_benchmark(dataset: Path, output: Path, figures: Path) -> dict[str, objec
     table = features(raw)
     eligible = table["target_available"].eq(1) & table["closure_next_q"].isin([0, 1]) & table["store_count"].ge(1)
     labeled = table.loc[eligible].copy()
-    train = labeled.loc[labeled["quarter"].le("20244")]
-    valid = labeled.loc[labeled["quarter"].eq("20251")]
-    test = labeled.loc[labeled["quarter"].isin(["20252", "20253"])].copy()
+    train, valid, test = benchmark_splits(labeled)
     for name, part in [("train", train), ("validation", valid), ("test", test)]:
         if part.empty or part["closure_next_q"].nunique() != 2:
             raise ValueError(f"{name}의 기간 또는 타깃 두 클래스를 확인하세요.")

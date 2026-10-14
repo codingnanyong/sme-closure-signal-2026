@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import shutil
+import zipfile
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -18,6 +19,19 @@ from .quality import KEY
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def archive_package(output: Path, filenames: list[str]) -> Path:
+    """Only manifest-listed files enter the ZIP, regardless of stale directory files."""
+    archive = Path(str(output) + ".zip")
+    root = output.resolve()
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+        for filename in filenames:
+            source = (output / filename).resolve()
+            if not source.is_relative_to(root):
+                raise ValueError("묶음 경로를 벗어난 파일은 포함할 수 없습니다.")
+            bundle.write(source, arcname=filename)
+    return archive
 
 
 def application_counts(text: str) -> list[int]:
@@ -147,6 +161,6 @@ def prepare_submission(root: Path, output: Path, workstudio: Path) -> dict[str, 
                                     "Work Studio execution and model equivalence", "Data licensing before any upload",
                                     "Release-date and external-period validation"]}
     (output / "manifest.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    archive = Path(shutil.make_archive(str(output), "zip", root_dir=output))
+    archive = archive_package(output, artifacts + ["manifest.json"])
     archive.with_suffix(archive.suffix + ".sha256").write_text(digest(archive) + "\n", encoding="utf-8")
     return payload
