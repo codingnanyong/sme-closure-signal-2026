@@ -94,3 +94,28 @@ def test_collect_sources_uses_live_file_ids_and_preserves_zip_bytes(monkeypatch,
         assert record["archive_sha256"] == hashlib.sha256(payload.getvalue()).hexdigest()
         assert Path(record["csv"]).read_bytes() == b"quarter,value\n20241,7\n"
         assert json.loads(archive.with_suffix(".zip.provenance.json").read_text(encoding="utf-8"))["year"] == 2024
+
+
+@pytest.mark.parametrize("member_count", [None, 0, 2])
+def test_invalid_source_archive_does_not_replace_existing_files(monkeypatch, tmp_path, member_count):
+    import io
+    import zipfile
+
+    payload = io.BytesIO(b"<html>download failed</html>")
+    if member_count is not None:
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w") as archive:
+            for index in range(member_count):
+                archive.writestr(f"source{index}.csv", b"value\n1\n")
+    def open_source(request, **kwargs):
+        if isinstance(request, str):
+            return io.BytesIO(b'<input name="infSeq" value="9"><span title="source_2024' + "년.zip".encode() + b'" onclick="downloadFile(\'123\')"></span>')
+        return io.BytesIO(payload.getvalue())
+    monkeypatch.setattr(acquisition.urllib.request, "urlopen", open_source)
+    archive = tmp_path / "raw/seoul/stores/stores-2024.zip"
+    archive.parent.mkdir(parents=True)
+    archive.write_bytes(b"previous archive")
+    with pytest.raises((ValueError, zipfile.BadZipFile)):
+        acquisition.collect_sources([2024], tmp_path)
+    assert archive.read_bytes() == b"previous archive"
+    assert not (tmp_path / "interim").exists()

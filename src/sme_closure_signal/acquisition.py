@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -139,19 +140,22 @@ def collect_sources(years: list[int], data_root: Path) -> dict[str, object]:
             with urllib.request.urlopen(request, timeout=120) as response:
                 payload = response.read()
             archive = data_root / "raw/seoul" / kind / f"{kind}-{year}.zip"
-            archive.parent.mkdir(parents=True, exist_ok=True)
-            archive.write_bytes(payload)
-            with zipfile.ZipFile(archive) as source:
+            with zipfile.ZipFile(io.BytesIO(payload)) as source:
                 members = [name for name in source.namelist() if name.lower().endswith(".csv")]
                 if len(members) != 1:
                     raise ValueError("연도별 ZIP에 CSV가 정확히 하나 있어야 합니다.")
+                csv_payload = source.read(members[0])  # Read verifies the CSV member CRC.
                 csv = data_root / "interim/seoul" / kind / f"{kind}-{year}.csv"
+                archive.parent.mkdir(parents=True, exist_ok=True)
                 csv.parent.mkdir(parents=True, exist_ok=True)
-                csv.write_bytes(source.read(members[0]))
+                for target, content in [(archive, payload), (csv, csv_payload)]:
+                    temporary = target.with_suffix(target.suffix + ".partial")
+                    temporary.write_bytes(content)
+                    temporary.replace(target)
             record = {"source_page": page, "dataset_id": identifier, "year": year,
                       "archive": str(archive), "csv": str(csv),
                       "archive_sha256": hashlib.sha256(payload).hexdigest(),
-                      "csv_sha256": hashlib.sha256(csv.read_bytes()).hexdigest(),
+                      "csv_sha256": hashlib.sha256(csv_payload).hexdigest(),
                       "retrieved_date": datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat(),
                       "timezone": "Asia/Seoul", "geography": "Seoul commercial area",
                       "industry_granularity": "source service industry code", "time_granularity": "quarter",
