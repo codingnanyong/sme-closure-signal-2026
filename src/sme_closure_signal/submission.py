@@ -21,6 +21,23 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def verified_workstudio_execution(workstudio: Path, exports: dict) -> dict | None:
+    """Accept an execution record only for the exact exported inputs and result files."""
+    evidence = workstudio / "execution_record.json"
+    if not evidence.exists():
+        return None
+    execution = json.loads(evidence.read_text(encoding="utf-8"))
+    if execution.get("execution_status") != "success" or execution.get("input_count") != 3:
+        raise ValueError("Work Studio 실행 증빙의 성공 상태와 입력 수를 확인하세요.")
+    for name, exported in exports.items():
+        if execution.get("files", {}).get(f"{name}.csv") != exported["sha256"]:
+            raise ValueError("Work Studio 실행 증빙과 현재 시간분할 입력이 다릅니다.")
+    for name in ["studio_metrics.csv", "local_script_metrics.csv", "environment_comparison.csv"]:
+        if execution.get("files", {}).get(name) != digest(workstudio / name):
+            raise ValueError("Work Studio 결과표와 실행 증빙의 SHA-256이 다릅니다.")
+    return execution
+
+
 def archive_package(output: Path, filenames: list[str]) -> Path:
     """Only manifest-listed files enter the ZIP, regardless of stale directory files."""
     archive = Path(str(output) + ".zip")
@@ -150,8 +167,19 @@ def prepare_submission(root: Path, output: Path, workstudio: Path) -> dict[str, 
         path = workstudio / f"{name}.csv"
         part.to_csv(path, index=False, encoding="utf-8-sig")
         exports[name] = {"path": str(path), "rows": len(part), "sha256": digest(path)}
+    execution = verified_workstudio_execution(workstudio, exports)
+    evidence = workstudio / "execution_record.json"
+    if execution is not None:
+        for name in ["studio_metrics.csv", "local_script_metrics.csv", "environment_comparison.csv"]:
+            source = workstudio / name
+            target = f"workstudio_{name}"
+            shutil.copyfile(source, output / target)
+            artifacts.append(target)
+        shutil.copyfile(evidence, output / "workstudio_execution_record.json")
+        artifacts.append("workstudio_execution_record.json")
     payload = {"version": "stores-sales-v1", "prepared_date": datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat(), "timezone": "Asia/Seoul",
-               "submission_status": "not_submitted", "portal_verified": False, "workstudio_executed": False,
+               "submission_status": "not_submitted", "portal_verified": False, "workstudio_executed": execution is not None,
+               "workstudio_model_equivalence": execution.get("model_equivalence") if execution else "not_verified",
                "selected_family": metadata["selected_family"], "dataset_sha256": metadata["dataset_sha256"],
                "application_character_counts": counts, "result_image_count": 4,
                "synthetic_example_notice": "Schema illustration only; no observed or model evaluation data",

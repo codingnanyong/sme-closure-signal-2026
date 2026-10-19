@@ -2,6 +2,7 @@ import pytest
 
 from pathlib import Path
 from sme_closure_signal.submission import application_counts, external_pdf_links, archive_package
+from sme_closure_signal.submission import digest, verified_workstudio_execution
 
 
 def test_application_counts_requires_all_five_complete_sections():
@@ -34,3 +35,35 @@ def test_zip_contains_only_explicit_manifest_files(monkeypatch):
     assert written == ["current.csv", "manifest.json"]
     with pytest.raises(ValueError, match="경로"):
         archive_package(Path("outputs/submission/test"), ["../outside.csv"])
+
+
+@pytest.mark.parametrize("change", [None, "input", "result", "status"])
+def test_execution_evidence_rejects_stale_or_failed_runs(tmp_path, change):
+    import json
+
+    names = ["train", "validation", "test"]
+    result_names = ["studio_metrics.csv", "local_script_metrics.csv", "environment_comparison.csv"]
+    files = {}
+    for name in [f"{name}.csv" for name in names] + result_names:
+        path = tmp_path / name
+        path.write_text("synthetic,value\nA,1\n", encoding="utf-8")
+        files[name] = digest(path)
+    record = {"execution_status": "success", "input_count": 3, "files": files,
+              "model_equivalence": "not_exact"}
+    exports = {name: {"sha256": files[f"{name}.csv"]} for name in names}
+    if change == "input":
+        exports["train"]["sha256"] = "different-input"
+    elif change == "result":
+        (tmp_path / "studio_metrics.csv").write_text("changed", encoding="utf-8")
+    elif change == "status":
+        record["execution_status"] = "failed"
+    (tmp_path / "execution_record.json").write_text(json.dumps(record), encoding="utf-8")
+    if change is None:
+        assert verified_workstudio_execution(tmp_path, exports)["model_equivalence"] == "not_exact"
+    else:
+        with pytest.raises(ValueError):
+            verified_workstudio_execution(tmp_path, exports)
+
+
+def test_absent_execution_record_does_not_claim_studio_success(tmp_path):
+    assert verified_workstudio_execution(tmp_path, {}) is None

@@ -19,6 +19,8 @@ node_modules/
 
 # Python
 .venv/
+.uv-cache/
+.python-runtime/
 __pycache__/
 *.py[cod]
 *.egg-info/

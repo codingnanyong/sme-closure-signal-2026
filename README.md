@@ -50,6 +50,8 @@ Sprint별 완료 조건과 리스크는 [프로젝트 로드맵](docs/kor/projec
 
 ## 현재 상태
 
+2026-10-19 원천·로컬 생성물을 복구하고 Work Studio 입력 3개 등록·시간 분할 회귀 검증 실행·저장을 확인했습니다. 스튜디오 평가 AP는 0.486243, 로컬은 0.486218이며 실행 환경 차이와 완전 동등성 `not_exact`를 구분합니다. 사용자는 결과 차이 수용·해석/사용 범위·생성형 AI 공개를 승인했습니다. [실행·승인 기록](docs/kor/project/WORK_STUDIO_EXECUTION_2026-10-19.md), [복구 기록](docs/kor/project/LOCAL_RECOVERY_2026-10-19.md)을 참고하세요. 아래 2026-10-14 문단은 기존 병합 이력입니다. 포털 레시피·신청 정보·최종 제출은 미완료이며 후속 코드 검증은 테스트 42개를 통과했습니다.
+
 현재 구현은 [develop 대상 PR #18](https://github.com/codingnanyong/sme-closure-signal-2026/pull/18)에서 검토합니다. 자동 미러 이슈는 COD-358 / GitHub #17이며 기존 COD-195~203에는 구현 범위와 남은 조건을 구분해 반영했습니다. Notion 프로젝트와 Sprint 03~05도 갱신했으며, Work Studio 파일 등록·실행과 포털 최종 확인·제출은 아직 남아 있습니다.
 
 COD-201~202 로컬 자료는 `python -m sme_closure_signal prepare-submission`으로 생성합니다. [자료 묶음 인계](docs/kor/project/COD-201_202_LOCAL_PACKAGE.md)에 본문·신청서·정의서·그림과 Work Studio 입력을 정리했습니다. 추가로 공식 상권영역·2023년 점포 자료를 확보해 [지역별 검증과 과거 학습 확장 가능성](docs/kor/research/ADDITIONAL_DATA_FEASIBILITY.md)을 확인했습니다. 유동인구 수집은 `fetch-footfall` 명령과 로컬 API 키가 필요합니다.

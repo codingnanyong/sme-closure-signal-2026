@@ -85,8 +85,15 @@ def main() -> None:
     history_test.add_argument("--dataset", type=Path, default=Path("data/processed/stores_sales_dataset.csv"))
     history_test.add_argument("--output", type=Path, default=Path("outputs/models/history_extension"))
 
+    sources = commands.add_parser("collect-sources", help="공식 2024·2025년 점포·매출 ZIP 재수집 및 출처 기록")
+    sources.add_argument("--years", type=int, nargs="+", default=[2024, 2025])
+    sources.add_argument("--data-root", type=Path, default=Path("data"))
+
     args = parser.parse_args()
-    if args.command == "validate":
+    if args.command == "collect-sources":
+        from .acquisition import collect_sources
+        print(json.dumps(collect_sources(args.years, args.data_root), ensure_ascii=False, indent=2))
+    elif args.command == "validate":
         write_json(validate_sources(args.stores, args.sales, args.footfall), args.output)
     elif args.command == "build":
         table = build_model_dataset(args.stores, args.sales, args.footfall)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -115,6 +116,55 @@ class StoreDownloadParser(HTMLParser):
             match = re.search(r"downloadFile\('(\d+)'\)", attrs.get("onclick", ""))
             if match:
                 self.sequence = match.group(1)
+
+
+def collect_sources(years: list[int], data_root: Path) -> dict[str, object]:
+    """Recover official annual stores/sales archives and provenance from live listings."""
+    if not years or len(set(years)) != len(years) or any(year not in {2024, 2025} for year in years):
+        raise ValueError("중복 없는 2024·2025년 목록이 필요합니다.")
+    records = []
+    for kind, identifier in [("stores", "OA-15577"), ("sales", "OA-15572")]:
+        page = f"https://data.seoul.go.kr/dataList/{identifier}/A/1/datasetView.do"
+        with urllib.request.urlopen(page, timeout=45) as response:
+            html = response.read().decode("utf-8")
+        for year in years:
+            parser = StoreDownloadParser(year)
+            parser.feed(html)
+            if not parser.sequence or not parser.inf_sequence:
+                raise ValueError(f"공식 파일 항목을 찾지 못했습니다: {kind} {year}")
+            body = urllib.parse.urlencode({"infId": identifier, "seq": parser.sequence,
+                                          "infSeq": parser.inf_sequence}).encode()
+            request = urllib.request.Request(
+                "https://datafile.seoul.go.kr/bigfile/iot/inf/nio_download.do?useCache=false",
+                data=body, headers={"Referer": page})
+            with urllib.request.urlopen(request, timeout=120) as response:
+                payload = response.read()
+            archive = data_root / "raw/seoul" / kind / f"{kind}-{year}.zip"
+            with zipfile.ZipFile(io.BytesIO(payload)) as source:
+                members = [name for name in source.namelist() if name.lower().endswith(".csv")]
+                if len(members) != 1:
+                    raise ValueError("연도별 ZIP에 CSV가 정확히 하나 있어야 합니다.")
+                csv_payload = source.read(members[0])  # Read verifies the CSV member CRC.
+                csv = data_root / "interim/seoul" / kind / f"{kind}-{year}.csv"
+                archive.parent.mkdir(parents=True, exist_ok=True)
+                csv.parent.mkdir(parents=True, exist_ok=True)
+                for target, content in [(archive, payload), (csv, csv_payload)]:
+                    temporary = target.with_suffix(target.suffix + ".partial")
+                    temporary.write_bytes(content)
+                    temporary.replace(target)
+            record = {"source_page": page, "dataset_id": identifier, "year": year,
+                      "archive": str(archive), "csv": str(csv),
+                      "archive_sha256": hashlib.sha256(payload).hexdigest(),
+                      "csv_sha256": hashlib.sha256(csv_payload).hexdigest(),
+                      "retrieved_date": datetime.now(ZoneInfo("Asia/Seoul")).date().isoformat(),
+                      "timezone": "Asia/Seoul", "geography": "Seoul commercial area",
+                      "industry_granularity": "source service industry code", "time_granularity": "quarter",
+                      "license": "KOGL Type 1; attribution required",
+                      "limitations": ["Historical release dates not verified", "Aggregate observations, not individual businesses"]}
+            archive.with_suffix(".zip.provenance.json").write_text(
+                json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            records.append(record)
+    return {"files": records}
 
 
 def collect_history(year: int, output: Path, current_dataset: Path) -> dict[str, object]:

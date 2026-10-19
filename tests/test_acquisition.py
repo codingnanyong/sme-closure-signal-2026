@@ -65,3 +65,57 @@ def test_history_download_parser_selects_only_requested_year():
     parser.feed('<input name="infSeq" value="3"><span title="점포_2024년.zip" onclick="downloadFile(\'19\')"></span>'
                 '<span title="점포_2023년.zip" onclick="downloadFile(\'18\')"></span>')
     assert parser.sequence == "18" and parser.inf_sequence == "3"
+
+
+def test_collect_sources_uses_live_file_ids_and_preserves_zip_bytes(monkeypatch, tmp_path):
+    import hashlib
+    import io
+    import json
+    import zipfile
+    import urllib.parse
+
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr("nested/source.csv", b"quarter,value\n20241,7\n")
+    calls = []
+    def open_source(request, **kwargs):
+        calls.append(request)
+        if isinstance(request, str):
+            html = '<input name="infSeq" value="9"><span title="source_2024년.zip" onclick="downloadFile(\'123\')"></span>'
+            return io.BytesIO(html.encode("utf-8"))
+        assert urllib.parse.parse_qs(request.data.decode())["seq"] == ["123"]
+        return io.BytesIO(payload.getvalue())
+    monkeypatch.setattr(acquisition.urllib.request, "urlopen", open_source)
+    result = acquisition.collect_sources([2024], tmp_path)
+    assert len(calls) == 4 and len(result["files"]) == 2
+    for record in result["files"]:
+        archive = Path(record["archive"])
+        assert archive.read_bytes() == payload.getvalue()
+        assert record["archive_sha256"] == hashlib.sha256(payload.getvalue()).hexdigest()
+        assert Path(record["csv"]).read_bytes() == b"quarter,value\n20241,7\n"
+        assert json.loads(archive.with_suffix(".zip.provenance.json").read_text(encoding="utf-8"))["year"] == 2024
+
+
+@pytest.mark.parametrize("member_count", [None, 0, 2])
+def test_invalid_source_archive_does_not_replace_existing_files(monkeypatch, tmp_path, member_count):
+    import io
+    import zipfile
+
+    payload = io.BytesIO(b"<html>download failed</html>")
+    if member_count is not None:
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w") as archive:
+            for index in range(member_count):
+                archive.writestr(f"source{index}.csv", b"value\n1\n")
+    def open_source(request, **kwargs):
+        if isinstance(request, str):
+            return io.BytesIO(b'<input name="infSeq" value="9"><span title="source_2024' + "년.zip".encode() + b'" onclick="downloadFile(\'123\')"></span>')
+        return io.BytesIO(payload.getvalue())
+    monkeypatch.setattr(acquisition.urllib.request, "urlopen", open_source)
+    archive = tmp_path / "raw/seoul/stores/stores-2024.zip"
+    archive.parent.mkdir(parents=True)
+    archive.write_bytes(b"previous archive")
+    with pytest.raises((ValueError, zipfile.BadZipFile)):
+        acquisition.collect_sources([2024], tmp_path)
+    assert archive.read_bytes() == b"previous archive"
+    assert not (tmp_path / "interim").exists()
