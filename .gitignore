@@ -18,6 +18,9 @@ Thumbs.db
 node_modules/
 
 # Python
+.venv/
+.uv-cache/
+.python-runtime/
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -32,6 +35,8 @@ data/processed/
 outputs/validation/
 outputs/models/
 outputs/figures/
+outputs/submission/
+outputs/workstudio/
 
 # Local-only reference guides with unverified redistribution terms
 docs/references/레시피 작성 참고.pdf

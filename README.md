@@ -50,6 +50,16 @@ Sprint별 완료 조건과 리스크는 [프로젝트 로드맵](docs/kor/projec
 
 ## 현재 상태
 
+2026-10-19 원천·로컬 생성물을 복구하고 Work Studio 입력 3개 등록·시간 분할 회귀 검증 실행·저장을 확인했습니다. 스튜디오 평가 AP는 0.486243, 로컬은 0.486218이며 실행 환경 차이와 완전 동등성 `not_exact`를 구분합니다. 사용자는 결과 차이 수용·해석/사용 범위·생성형 AI 공개를 승인했습니다. [실행·승인 기록](docs/kor/project/WORK_STUDIO_EXECUTION_2026-10-19.md), [복구 기록](docs/kor/project/LOCAL_RECOVERY_2026-10-19.md)을 참고하세요. 아래 2026-10-14 문단은 기존 병합 이력입니다. 포털 레시피·신청 정보·최종 제출은 미완료이며 후속 코드 검증은 테스트 42개를 통과했습니다.
+
+현재 구현은 [develop 대상 PR #18](https://github.com/codingnanyong/sme-closure-signal-2026/pull/18)에서 검토합니다. 자동 미러 이슈는 COD-358 / GitHub #17이며 기존 COD-195~203에는 구현 범위와 남은 조건을 구분해 반영했습니다. Notion 프로젝트와 Sprint 03~05도 갱신했으며, Work Studio 파일 등록·실행과 포털 최종 확인·제출은 아직 남아 있습니다.
+
+COD-201~202 로컬 자료는 `python -m sme_closure_signal prepare-submission`으로 생성합니다. [자료 묶음 인계](docs/kor/project/COD-201_202_LOCAL_PACKAGE.md)에 본문·신청서·정의서·그림과 Work Studio 입력을 정리했습니다. 추가로 공식 상권영역·2023년 점포 자료를 확보해 [지역별 검증과 과거 학습 확장 가능성](docs/kor/research/ADDITIONAL_DATA_FEASIBILITY.md)을 확인했습니다. 유동인구 수집은 `fetch-footfall` 명령과 로컬 API 키가 필요합니다.
+
+COD-198~200 후속 검증에서는 매출 제외 회귀(C=10)가 검증 AP 기준 후보로 선택되었고 평가 AP는 0.4862였습니다. 상권 500회 재표집과 규모별 임계값 진단·최신 후보 그림을 [추가 검증 결과](docs/kor/research/COD-199_VALIDATED_INSIGHTS.md)에 정리했습니다. 재현 명령은 `python -m sme_closure_signal robustness`입니다.
+
+2026-10-14 지연 일정 복구 작업으로 공식 점포·매출 전용 모델 입력, 시간 분할 기준선·회귀 비교, 평가표와 그림을 생성했습니다. [1차 분석 결과](docs/kor/research/COD-197_FIRST_RESULTS.md), [복구 계획](docs/kor/project/RECOVERY_PLAN_2026-10-14.md), [제출 검토표](docs/kor/project/COD-203_SUBMISSION_REVIEW.md)를 기준으로 후속 검토를 진행합니다. 길단위인구·실제 공개일·Work Studio 재현·포털 최종 확인은 남아 있습니다. 아래 항목은 2026-09-18 초기 준비 상태입니다.
+
 - Notion 프로젝트와 6개 Sprint 구성 완료
 - Linear COD-189~207 작업 분해 완료
 - 공식 공고·신청 양식 원본 보관 및 평가기준 대조 완료

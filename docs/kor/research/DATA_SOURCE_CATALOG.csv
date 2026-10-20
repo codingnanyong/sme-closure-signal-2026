@@ -1,0 +1,8 @@
+dataset_id,name,source_url,checked_date,period,geographic_granularity,industry_granularity,license,acquisition_status,limitations
+OA-15577,점포-상권,https://data.seoul.go.kr/dataList/OA-15577/A/1/datasetView.do,2026-10-14,2024Q1~2025Q4,서울 상권,서비스업종,공공누리 1유형 출처표시,기존 v1 입력,과거 공개일 미검증 및 폐업률 분모 미확정
+OA-15572,추정매출-상권,https://data.seoul.go.kr/dataList/OA-15572/A/1/datasetView.do,2026-10-14,2024Q1~2025Q4,서울 상권,서비스업종,공공누리 1유형 출처표시,비교 실험에 사용 및 최종 v1 피처 제외,추정치이며 점포 키의 약 28.27%만 매출 보유
+OA-15560,영역-상권,https://data.seoul.go.kr/dataList/OA-15560/S/1/datasetView.do,2026-10-14,파일 수정일 2023-10-23 스냅샷,서울 상권 및 자치구,없음,공공누리 1유형 출처표시,공식 ZIP 확보 및 자치구별 검증 수행,분기별 경계 이력 아님 및 모델 피처 미사용
+OA-15577,2023년 점포-상권,https://data.seoul.go.kr/dataList/OA-15577/A/1/datasetView.do,2026-10-14,2023Q1~2023Q4,서울 상권,서비스업종,공공누리 1유형 출처표시,공식 ZIP 확보 및 과거 학습 확장 실험,코드 일치가 경계 동일성까지 보장하지 않으며 독립 미래 평가 아님
+OA-15568,길단위인구-상권,https://data.seoul.go.kr/dataList/OA-15568/S/1/datasetView.do?tab=A,2026-10-14,수집 목표 2024Q1~2025Q4,서울 상권,없음,공공누리 1유형 출처표시,수집기 구현 및 API 키 대기,실제 인증 수집과 추가 성능 효과 미검증 및 업종별 고객 수 아님
+OA-15569,직장인구-상권,https://data.seoul.go.kr/dataList/OA-15569/S/1/datasetView.do,2026-10-14,실제 응답 기간 미확인,서울 상권,없음,공공누리 1유형 출처표시,메타데이터 조사만 수행,설명상 연 1회 Q4 갱신 및 다음 해 Q1~Q3 값 반복
+OA-15584,상주인구-상권,https://data.seoul.go.kr/dataList/OA-15584/S/1/datasetView.do,2026-10-14,실제 응답 기간 미확인,서울 상권,없음,공공누리 1유형 출처표시,메타데이터 조사만 수행,설명상 연 1회 Q4 갱신 및 다음 해 Q1~Q3 값 반복
